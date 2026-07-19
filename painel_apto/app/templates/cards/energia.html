@@ -12,10 +12,10 @@
       <circle class="track" cx="105" cy="105" r="90" fill="none" stroke-width="14"/>
       <circle class="bar" cx="105" cy="105" r="90" fill="none" stroke-width="14"
         stroke-dasharray="{{ circumference }}"
-        stroke-dashoffset="{{ '%.1f'|format(circumference * (1 - progress)) }}"/>
+        stroke-dashoffset="{{ '%.2f'|format(circumference * (1 - progress)) }}"/>
     </svg>
     <div class="center">
-      <div class="kwh">{{ '%.1f'|format(data.kwh) }}</div>
+      <div class="kwh">{{ '%.2f'|format(data.kwh) }}</div>
       <div class="unit">{{ t.kwh_cycle }}</div>
       <div class="pill">{{ data.estimated_value|brl }}</div>
     </div>
@@ -56,7 +56,7 @@
   {% for invoice in data.invoices %}
     <li>
       <span>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr }}<br>
-        <small>{{ '%.1f'|format(invoice.kwh) }} kWh</small></span>
+        <small>{{ '%.2f'|format(invoice.kwh) }} kWh</small></span>
       <span class="tag {{ invoice.status }}">{{ t['st_' ~ invoice.status] }}</span>
       <a class="btn small" href="/fatura/{{ invoice.id }}">{{ invoice.amount|brl }}</a>
     </li>

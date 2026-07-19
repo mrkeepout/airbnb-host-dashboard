@@ -132,6 +132,7 @@ label{display:block;font-size:.86rem;font-weight:600;margin-bottom:2px}
 .autom-copy{min-width:0}
 .autom-copy h2{margin:1px 0 4px;font-size:1.28rem;line-height:1.15}
 .autom-copy p{margin:0;color:var(--muted);line-height:1.45}
+.autom-desc{white-space:pre-line}
 .autom-empty{margin:0}
 
 .tag{font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:99px;
