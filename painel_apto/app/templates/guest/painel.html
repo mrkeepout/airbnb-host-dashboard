@@ -34,21 +34,24 @@
   <a class="active" href="#top">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
     {{ t.nav_panel }}</a>
-  {% set nav_state = namespace(seen_types=[]) %}
-  {% for card_view in cards %}
-    {% if card_view.card.type not in nav_state.seen_types %}
-      {% set nav_state.seen_types = nav_state.seen_types + [card_view.card.type] %}
-  <a href="#sec-{{ card_view.card.type }}-{{ card_view.card.id }}">
-    {% if card_view.card.type == 'energia' %}
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-    {% elif card_view.card.type == 'automacoes' %}
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg>
-    {% else %}
+  {% set hospede_card = cards|selectattr('card.type', 'equalto', 'hospede')|first %}
+  {% if hospede_card %}
+  <a href="#sec-{{ hospede_card.card.type }}-{{ hospede_card.card.id }}">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
-    {% endif %}
-    {{ card_view.card.title }}</a>
-    {% endif %}
-  {% endfor %}
+    Sua reserva</a>
+  {% endif %}
+  {% set automacoes_card = cards|selectattr('card.type', 'equalto', 'automacoes')|first %}
+  {% if automacoes_card %}
+  <a href="#sec-{{ automacoes_card.card.type }}-{{ automacoes_card.card.id }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+    Automações</a>
+  {% endif %}
+  {% set conteudo_card = cards|selectattr('card.type', 'equalto', 'conteudo')|first %}
+  {% if conteudo_card %}
+  <a href="#sec-{{ conteudo_card.card.type }}-{{ conteudo_card.card.id }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8.7 8 10 4.5-1.3 8-5 8-10V6l-8-4z"/><path d="M8 12h8M12 8v8"/></svg>
+    Wi-fi</a>
+  {% endif %}
   <a href="/sair">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
     {{ t.nav_exit }}</a>
