@@ -18,7 +18,7 @@
 
 {% for card_view in cards %}
   <section class="card" id="sec-{{ card_view.card.type }}-{{ card_view.card.id }}">
-    {% if card_view.card.type != 'hospede' %}<h2>{{ card_view.card.title }}</h2>{% endif %}
+    {% if card_view.card.type not in ['hospede', 'automacoes'] %}<h2>{{ card_view.card.title }}</h2>{% endif %}
     {% include card_view.template %}
   </section>
 {% endfor %}

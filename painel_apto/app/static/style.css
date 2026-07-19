@@ -124,6 +124,15 @@ label{display:block;font-size:.86rem;font-weight:600;margin-bottom:2px}
   margin-bottom:10px;display:flex;justify-content:space-between;
   align-items:center;gap:10px}
 .auto-list .nm{font-weight:700;font-size:.95rem}
+.autom-card{display:flex;flex-direction:column;gap:14px}
+.autom-head{display:flex;align-items:flex-start;gap:12px}
+.autom-icon{width:44px;height:44px;border-radius:14px;background:var(--green-900);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;flex:none;box-shadow:0 1px 3px rgba(23,37,31,.08)}
+.autom-copy{min-width:0}
+.autom-copy h2{margin:1px 0 4px;font-size:1.28rem;line-height:1.15}
+.autom-copy p{margin:0;color:var(--muted);line-height:1.45}
+.autom-empty{margin:0}
 
 .tag{font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:99px;
   background:var(--card-soft);text-transform:uppercase;letter-spacing:.04em}

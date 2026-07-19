@@ -13,6 +13,7 @@ def allowed_entities(card: dict) -> list[str]:
 
 async def build_context(card: dict, reservation: dict) -> dict:
     entity_ids = allowed_entities(card)
+    config = json.loads(card.get("config") or "{}")
     automations = []
     error_message = None
 
@@ -34,13 +35,20 @@ async def build_context(card: dict, reservation: dict) -> dict:
         except Exception as error:
             error_message = str(error)
 
-    return {"automations": automations, "error": error_message}
+    return {
+        "automations": automations,
+        "error": error_message,
+        "icon": (config.get("icon") or "⚡").strip() or "⚡",
+        "description": (config.get("description") or "").strip(),
+    }
 
 
 MODULE = {
     "type": "automacoes",
-    "label": "Automações (liga/desliga)",
+    "label": "Grupo de automações",
     "fields": [
+        ("icon", "Ícone do grupo (emoji ou texto curto)", "text"),
+        ("description", "Descrição do grupo", "textarea"),
         ("entities",
          "IDs das automações permitidas (uma por linha ou separadas por vírgula)",
          "textarea"),
