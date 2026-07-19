@@ -3,6 +3,7 @@ import json
 import os
 import secrets
 import sqlite3
+import hashlib
 
 DATABASE_PATH = os.environ.get(
     "DB_PATH",
@@ -89,6 +90,25 @@ def _read_addon_options() -> dict:
     return {}
 
 
+def _sync_host_password_from_addon_options(addon_options: dict):
+    """Aplica a senha do add-on quando ela muda na configuração do Home Assistant."""
+    from . import auth
+
+    initial_password = str(
+        addon_options.get("senha_anfitriao_inicial")
+        or os.environ.get("HOST_PASSWORD", "admin")
+    ).strip()
+    if not initial_password:
+        return
+
+    source_fingerprint = hashlib.sha256(initial_password.encode()).hexdigest()
+    if get_setting("host_password_source_hash") == source_fingerprint:
+        return
+
+    set_setting("host_password_hash", auth.hash_password(initial_password))
+    set_setting("host_password_source_hash", source_fingerprint)
+
+
 def init_db():
     os.makedirs(os.path.dirname(os.path.abspath(DATABASE_PATH)), exist_ok=True)
     with get_connection() as connection:
@@ -100,14 +120,8 @@ def init_db():
     if not get_setting("secret"):
         set_setting("secret", secrets.token_hex(32))
 
-    # senha inicial do anfitrião (apenas na primeira inicialização)
-    if not get_setting("host_password_hash"):
-        from . import auth
-        initial_password = (
-            addon_options.get("senha_anfitriao_inicial")
-            or os.environ.get("HOST_PASSWORD", "admin")
-        )
-        set_setting("host_password_hash", auth.hash_password(initial_password))
+    # senha do anfitrião: sincroniza com a opção do add-on quando ela muda
+    _sync_host_password_from_addon_options(addon_options)
 
     if addon_options.get("fuso_horario"):
         set_setting("timezone", addon_options["fuso_horario"])

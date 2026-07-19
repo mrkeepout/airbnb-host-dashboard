@@ -34,15 +34,16 @@
   <a class="active" href="#top">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
     {{ t.nav_panel }}</a>
-  {% for card_view in cards if card_view.card.type == 'energia' %}
+  {% for card_view in cards %}
   <a href="#sec-{{ card_view.card.type }}-{{ card_view.card.id }}">
+    {% if card_view.card.type == 'energia' %}
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-    {{ t.nav_energy }}</a>
-  {% endfor %}
-  {% for card_view in cards if card_view.card.type == 'automacoes' %}
-  <a href="#sec-{{ card_view.card.type }}-{{ card_view.card.id }}">
+    {% elif card_view.card.type == 'automacoes' %}
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg>
-    {{ t.nav_autom }}</a>
+    {% else %}
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+    {% endif %}
+    {{ card_view.card.title }}</a>
   {% endfor %}
   <a href="/sair">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>

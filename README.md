@@ -28,7 +28,7 @@ O painel fica em `http://IP_DO_PI:8234` na rede local.
 
 ## 2. Primeira configuração (dashboard do anfitrião)
 
-Acesse `http://IP_DO_PI:8234/admin` e entre com a senha inicial. Em **Configurações**:
+Acesse `http://IP_DO_PI:8234/admin` e entre com a senha configurada no add-on. Em **Configurações**:
 
 - **Sensor de energia**: escolha o sensor de kWh (classe `energy`, total crescente —
   o mesmo tipo usado no painel Energia do HA). É dele que o consumo é lido, via
@@ -39,7 +39,8 @@ Acesse `http://IP_DO_PI:8234/admin` e entre com a senha inicial. Em **Configura�
   o pagamento no seu extrato e marca a fatura como paga.
 - **Domínio**: por enquanto use o placeholder `painel.SEU-DOMINIO.com.br`; troque
   quando comprar o domínio. (Usado só para montar o link mágico exibido.)
-- Troque a senha do anfitrião.
+- Troque a senha do anfitrião. Se quiser mudar pelo Home Assistant, ajuste
+  `senha_anfitriao_inicial` e reinicie o add-on.
 
 ## 3. Fluxo de reserva
 
