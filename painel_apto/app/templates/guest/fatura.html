@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ t.energy_invoice }}{% endblock %}
+{% block content %}
+<header class="topbar">
+  <div class="brand"><div class="logo">⚡</div><h1>{{ t.energy_invoice }}</h1></div>
+  <a class="btn small" href="/painel">{{ t.back }}</a>
+</header>
+<div class="banner">
+  <small>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr }} ·
+    {{ '%.1f'|format(invoice.kwh) }} kWh × {{ invoice.tariff|brl }}/kWh</small>
+  <div class="amount">{{ invoice.amount|brl }}</div>
+  <small><span class="tag {{ invoice.status }}">{{ t['st_' ~ invoice.status] }}</span></small>
+</div>
+{% if invoice.status == 'aberta' %}
+<section class="card center">
+  {% if pix_ok %}
+    <img class="qr" src="{{ qr }}" alt="QR Code PIX">
+    <p class="muted"><small>{{ t.scan_qr }}</small></p>
+    <textarea class="pix-copy" id="pix-payload" readonly rows="4">{{ payload }}</textarea>
+    <button class="btn primary" style="width:100%" type="button"
+      onclick="copyText('pix-payload', this, {{ t.copied|tojson }})">
+      {{ t.copy_pix }}</button>
+    <p class="muted"><small>{{ t.after_payment }}</small></p>
+  {% else %}
+    <p class="alert">{{ t.pix_missing }}</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

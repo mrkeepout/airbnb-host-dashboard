@@ -1,0 +1,14 @@
+{% set data = card_view.data %}
+{% if data.error %}<p class="alert">{{ t.autom_error }}: {{ data.error }}</p>{% endif %}
+{% if not data.automations %}<p class="muted"><small>{{ t.no_autom }}</small></p>{% endif %}
+<ul class="auto-list">
+{% for automation in data.automations %}
+  <li>
+    <span class="nm">{{ automation.name }}{% if not automation.found %}<br><small class="muted">{{ t.not_found }}</small>{% endif %}</span>
+    <button class="switch {{ 'on' if automation.is_on }}" data-entity="{{ automation.entity_id }}"
+            {% if not automation.found %}disabled{% endif %} type="button" aria-label="toggle">
+      <span class="knob"></span>
+    </button>
+  </li>
+{% endfor %}
+</ul>

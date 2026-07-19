@@ -1,0 +1,179 @@
+/* ===== EcoSync-inspired design system ===== */
+:root{
+  --bg:#f3f2ed;            /* creme */
+  --card:#ffffff;
+  --card-soft:#eef1ea;     /* verde bem claro p/ ícones */
+  --ink:#17251f;
+  --muted:#8b938e;
+  --green-900:#16342c;     /* verde escuro (banners) */
+  --green-700:#1f4d3f;
+  --green-600:#2e6e58;
+  --green-500:#3a9d6e;     /* toggles / progresso */
+  --mint:#cfe3d6;
+  --warn:#c2410c;
+  --danger:#b91c1c;
+  --line:#e7e6e0;
+  --radius:20px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Inter',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:520px;margin:0 auto;padding:16px 16px 92px}
+h1{font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin:0}
+h2{font-size:1rem;font-weight:700;letter-spacing:-.01em;margin:0 0 12px}
+h3{font-size:.85rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted);margin:18px 0 8px}
+small,.muted{color:var(--muted)}
+code{background:var(--card-soft);padding:1px 5px;border-radius:6px;font-size:.85em}
+a{color:var(--green-600)}
+
+/* header */
+.topbar{display:flex;justify-content:space-between;align-items:center;
+  gap:10px;margin:6px 0 18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{width:34px;height:34px;border-radius:12px;background:var(--green-900);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px}
+.adminnav a{margin-left:14px;text-decoration:none;color:var(--green-600);
+  font-size:.9rem;font-weight:600}
+
+/* cards */
+.card{background:var(--card);border-radius:var(--radius);padding:18px;
+  margin-bottom:14px;box-shadow:0 1px 3px rgba(23,37,31,.05)}
+.card.inner{background:var(--bg);box-shadow:none;margin-top:10px}
+.card.center{text-align:center}
+.center-card{background:var(--card);border-radius:var(--radius);
+  padding:32px 24px;margin:11vh auto 0;max-width:360px;text-align:center;
+  box-shadow:0 1px 3px rgba(23,37,31,.06)}
+.center-card .logo{width:48px;height:48px;border-radius:16px;margin:0 auto 14px;
+  background:var(--green-900);color:#fff;display:flex;align-items:center;
+  justify-content:center;font-size:22px}
+
+/* buttons */
+.btn{display:inline-block;border:none;background:var(--card-soft);color:var(--ink);
+  border-radius:14px;padding:11px 18px;font-size:.92rem;font-weight:600;
+  text-decoration:none;cursor:pointer;font-family:inherit}
+.btn.primary{background:var(--green-900);color:#fff}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.small{padding:7px 12px;font-size:.83rem;border-radius:11px}
+.inline{display:inline}
+
+/* forms */
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);
+  border-radius:14px;font-size:1rem;background:#fff;color:var(--ink);
+  font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--green-500);
+  border-color:transparent}
+label{display:block;font-size:.86rem;font-weight:600;margin-bottom:2px}
+.form-grid{display:grid;gap:12px}
+.form-grid .check{display:flex;gap:8px;align-items:center}
+.form-grid .check input{width:auto}
+.row-form{display:flex;gap:8px;align-items:center}
+.row-between{display:flex;justify-content:space-between;align-items:center;
+  gap:8px;flex-wrap:wrap}
+
+.code-input{text-align:center;letter-spacing:.6em;font-size:1.7rem;
+  font-weight:700;margin:16px 0;border-radius:16px}
+.alert{background:#fdf0ec;color:#9a3412;border-radius:14px;
+  padding:12px;font-size:.88rem}
+
+/* ===== gauge de energia ===== */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:6px 0 2px}
+.gauge{position:relative;width:210px;height:210px}
+.gauge svg{transform:rotate(-90deg)}
+.gauge .track{stroke:var(--mint);opacity:.55}
+.gauge .bar{stroke:var(--green-600);stroke-linecap:round;
+  transition:stroke-dashoffset .6s ease}
+.gauge .center{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center}
+.gauge .kwh{font-size:2.3rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.gauge .unit{font-size:.72rem;font-weight:700;letter-spacing:.14em;
+  color:var(--muted);margin-top:6px}
+.gauge .pill{margin-top:8px;background:var(--card-soft);border-radius:99px;
+  padding:4px 12px;font-size:.8rem;font-weight:700}
+.gauge-meta{display:flex;justify-content:space-between;width:100%;
+  margin-top:16px;gap:10px}
+.gauge-meta .item small{display:block;text-transform:uppercase;
+  letter-spacing:.08em;font-size:.66rem;font-weight:700}
+.gauge-meta .item .v{font-size:1.15rem;font-weight:800}
+.gauge-meta .item:last-child{text-align:right}
+
+/* banner verde escuro (fatura aberta / destaque) */
+.banner{background:var(--green-900);color:#fff;border-radius:var(--radius);
+  padding:18px;margin:14px 0 4px}
+.banner .amount{font-size:1.9rem;font-weight:800;letter-spacing:-.02em}
+.banner small{color:#bcd3c6}
+.banner .btn{background:#fff;color:var(--green-900);margin-top:10px}
+
+/* consulta por período */
+.range summary{cursor:pointer;color:var(--green-600);font-weight:600;
+  font-size:.9rem;margin:10px 0 4px}
+.range-form{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin:8px 0}
+.range-form label{flex:1;min-width:120px}
+#en-result{font-size:1rem}
+
+/* listas */
+.invoice-list,.auto-list{list-style:none;margin:0;padding:0}
+.invoice-list li{display:flex;justify-content:space-between;align-items:center;
+  gap:8px;padding:12px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.invoice-list li:first-child{border-top:none}
+
+/* automações estilo EcoSync */
+.auto-list li{background:var(--card-soft);border-radius:16px;padding:14px;
+  margin-bottom:10px;display:flex;justify-content:space-between;
+  align-items:center;gap:10px}
+.auto-list .nm{font-weight:700;font-size:.95rem}
+
+.tag{font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:99px;
+  background:var(--card-soft);text-transform:uppercase;letter-spacing:.04em}
+.tag.paga,.tag.ativa{background:#dcefe2;color:var(--green-700)}
+.tag.aberta{background:#fdf3d7;color:#92610e}
+.tag.cancelada{background:#fde8e8;color:var(--danger)}
+
+/* toggle pill */
+.switch{width:54px;height:32px;border-radius:99px;border:none;
+  background:#d7d9d3;position:relative;cursor:pointer;transition:.25s;flex:none}
+.switch .knob{position:absolute;top:4px;left:4px;width:24px;height:24px;
+  border-radius:50%;background:#fff;transition:.25s;
+  box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch.on{background:var(--green-500)}
+.switch.on .knob{left:26px}
+.switch:disabled{opacity:.4;cursor:not-allowed}
+
+/* fatura / PIX */
+.qr{width:230px;max-width:82%;margin:12px auto;display:block;
+  border-radius:16px;padding:10px;background:#fff;
+  box-shadow:0 1px 3px rgba(23,37,31,.08)}
+.pix-copy{font-size:.76rem;word-break:break-all;margin:8px 0;
+  font-family:ui-monospace,monospace;background:var(--card-soft);border:none}
+.freetext{white-space:pre-wrap;line-height:1.55}
+.big{font-size:1.8rem;font-weight:800;letter-spacing:-.02em}
+
+/* bottom nav */
+.bottomnav{position:fixed;left:0;right:0;bottom:0;background:var(--card);
+  border-top:1px solid var(--line);display:flex;justify-content:space-around;
+  padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:10}
+.bottomnav a{display:flex;flex-direction:column;align-items:center;gap:3px;
+  text-decoration:none;color:var(--muted);font-size:.62rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;min-width:64px}
+.bottomnav a svg{width:20px;height:20px;stroke:currentColor}
+.bottomnav a.active,.bottomnav a:hover{color:var(--green-900)}
+
+.foot{text-align:center;margin:22px 0 6px;color:var(--muted);font-size:.82rem}
+
+/* card de dados do hóspede */
+.guest-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gitem{background:var(--card-soft);border-radius:16px;padding:12px 14px}
+.gitem.wide{grid-column:1 / -1}
+.gitem small{display:block;text-transform:uppercase;letter-spacing:.08em;
+  font-size:.64rem;font-weight:700;color:var(--muted);margin-bottom:3px}
+.gitem .v{font-size:1.05rem;font-weight:800;letter-spacing:-.01em}
+.gitem.nights{background:var(--green-900);text-align:center;padding:10px}
+.gitem.nights small{color:#bcd3c6;margin:0;font-size:.72rem}
+
+/* seletor de idioma */
+.langswitch{font-size:.78rem;color:var(--muted);margin-top:14px}
+.topbar .langswitch{margin:0}
+.langswitch a{text-decoration:none;color:var(--muted);font-weight:700;padding:2px 4px}
+.langswitch a.on{color:var(--green-900);border-bottom:2px solid var(--green-500)}

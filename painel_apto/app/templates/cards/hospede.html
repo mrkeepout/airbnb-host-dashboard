@@ -1,0 +1,18 @@
+{% set data = card_view.data %}
+<div class="guest-grid">
+  <div class="gitem wide">
+    <small>{{ t.g_guest }}</small>
+    <div class="v">{{ reservation.guest_name }}</div>
+  </div>
+  <div class="gitem">
+    <small>{{ t.g_checkin }}</small>
+    <div class="v">{{ reservation.checkin|dbr }}</div>
+  </div>
+  <div class="gitem">
+    <small>{{ t.g_checkout }}</small>
+    <div class="v">{{ reservation.checkout|dbr }}</div>
+  </div>
+  <div class="gitem wide nights">
+    <small>{{ data.nights }} {{ t.g_nights }}</small>
+  </div>
+</div>

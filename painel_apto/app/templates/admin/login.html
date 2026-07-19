@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Anfitrião — Login{% endblock %}
+{% block content %}
+<div class="center-card">
+  <h1>🔑 Área do anfitrião</h1>
+  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="/admin/login">
+    <input type="password" name="password" placeholder="Senha" required autofocus>
+    <button class="btn primary" type="submit">Entrar</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="center-card">
+  <div class="logo">⌂</div>
+  <h1>{{ t.apartment }}</h1>
+  {% if expirado %}
+  <p class="alert">{{ t.expired_access }}</p>
+  {% else %}
+  <p class="muted">{{ t.use_link }}</p>
+  {% endif %}
+  <p class="langswitch">
+    <a href="?lang=pt" class="{{ 'on' if lang=='pt' }}">PT</a> ·
+    <a href="?lang=en" class="{{ 'on' if lang=='en' }}">EN</a> ·
+    <a href="?lang=es" class="{{ 'on' if lang=='es' }}">ES</a>
+  </p>
+</div>
+{% endblock %}

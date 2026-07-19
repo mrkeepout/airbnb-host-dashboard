@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f3f2ed">
+<title>{% block title %}Painel do Apartamento{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<script>
+/* Copia o conteúdo de um elemento (input/textarea) para a área de transferência.
+   navigator.clipboard só existe em HTTPS; em HTTP (rede local) usamos o
+   fallback com seleção + execCommand. */
+function copyText(sourceId, button, copiedLabel) {
+  const source = document.getElementById(sourceId);
+  const text = source.value !== undefined ? source.value : source.textContent;
+  const markAsCopied = () => { button.textContent = copiedLabel; };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(markAsCopied, () => fallback());
+  } else {
+    fallback();
+  }
+  function fallback() {
+    source.focus();
+    source.select();
+    try { document.execCommand('copy'); markAsCopied(); }
+    catch (err) { alert(text); }
+    window.getSelection().removeAllRanges();
+    button.blur();
+  }
+}
+</script>
+</head>
+<body>
+<main class="wrap">
+{% block content %}{% endblock %}
+</main>
+{% block nav %}{% endblock %}
+</body>
+</html>

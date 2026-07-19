@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Anfitrião — Cards{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<section class="card">
+  <h2>Cards do painel do hóspede</h2>
+  <p><small>O hóspede vê os cards ativos, nesta ordem.</small></p>
+  {% for card in cards %}
+  <div class="card inner">
+    <div class="row-between">
+      <strong>{{ card.title }}</strong>
+      <span>
+        <form class="inline" method="post" action="/admin/cards/{{ card.id }}/mover">
+          <input type="hidden" name="direction" value="up"><button class="btn small">↑</button></form>
+        <form class="inline" method="post" action="/admin/cards/{{ card.id }}/mover">
+          <input type="hidden" name="direction" value="down"><button class="btn small">↓</button></form>
+        <form class="inline" method="post" action="/admin/cards/{{ card.id }}/excluir"
+              onsubmit="return confirm('Excluir este card?')">
+          <button class="btn small danger">✕</button></form>
+      </span>
+    </div>
+    {% if card.module %}
+    <form method="post" action="/admin/cards/salvar" class="form-grid">
+      <input type="hidden" name="cid" value="{{ card.id }}">
+      <input type="hidden" name="type" value="{{ card.type }}">
+      <label>Título <input name="title" value="{{ card.title }}"></label>
+      {% for field_key, field_label, input_type in card.module.fields %}
+      <label>{{ field_label }}
+        {% if input_type == 'textarea' %}
+        <textarea name="cfg_{{ field_key }}" rows="3">{{ card.cfg.get(field_key,'') }}</textarea>
+        {% else %}
+        <input name="cfg_{{ field_key }}" value="{{ card.cfg.get(field_key,'') }}">
+        {% endif %}
+      </label>
+      {% endfor %}
+      <label class="check"><input type="checkbox" name="enabled"
+        {{ 'checked' if card.enabled }}> Ativo</label>
+      <button class="btn small primary" type="submit">Salvar</button>
+    </form>
+    {% else %}
+    <p class="alert">Módulo "{{ card.type }}" não encontrado.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</section>
+
+<section class="card">
+  <h2>Adicionar card</h2>
+  <form method="post" action="/admin/cards/salvar" class="form-grid">
+    <input type="hidden" name="cid" value="0">
+    <label>Tipo
+      <select name="type">
+        {% for module_type, module in registry.items() %}
+        <option value="{{ module_type }}">{{ module.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Título <input name="title" placeholder="(padrão do módulo)"></label>
+    <label class="check"><input type="checkbox" name="enabled" checked> Ativo</label>
+    <button class="btn primary" type="submit">Adicionar</button>
+  </form>
+  <p><small>Campos específicos do módulo aparecem para edição depois de adicionar.</small></p>
+</section>
+{% endblock %}

@@ -1,0 +1,20 @@
+name: Painel do Apartamento
+version: "1.0.0"
+slug: painel_apto
+description: Painel do hóspede (energia, automações, fatura PIX) + dashboard do anfitrião
+arch:
+  - aarch64
+  - armv7
+  - amd64
+init: false
+homeassistant_api: true
+ports:
+  8234/tcp: 8234
+ports_description:
+  8234/tcp: Interface web do painel
+options:
+  senha_anfitriao_inicial: "trocar-esta-senha"
+  fuso_horario: "America/Fortaleza"
+schema:
+  senha_anfitriao_inicial: str
+  fuso_horario: str

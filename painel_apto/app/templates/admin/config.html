@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Anfitrião — Configurações{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+{% if ha_error %}
+<section class="card"><p class="alert">Sem conexão com o Home Assistant: {{ ha_error }}</p></section>
+{% endif %}
+<section class="card">
+  <h2>Configurações</h2>
+  <form method="post" action="/admin/config" class="form-grid">
+    <label>Sensor de energia (kWh, total crescente)
+      {% if sensors %}
+      <select name="energy_sensor">
+        <option value="">— escolher —</option>
+        {% for sensor_id in sensors %}
+        <option value="{{ sensor_id }}" {{ 'selected' if settings.energy_sensor==sensor_id }}>{{ sensor_id }}</option>
+        {% endfor %}
+      </select>
+      {% else %}
+      <input name="energy_sensor" value="{{ settings.energy_sensor }}"
+             placeholder="sensor.energia_apartamento">
+      {% endif %}
+    </label>
+    <label>Tarifa (R$ por kWh)
+      <input name="tariff" value="{{ settings.tariff }}" inputmode="decimal" placeholder="1.10"></label>
+    <label>Chave PIX
+      <input name="pix_key" value="{{ settings.pix_key }}" placeholder="CPF, e-mail, telefone ou aleatória"></label>
+    <label>Nome do recebedor (como no banco)
+      <input name="pix_name" value="{{ settings.pix_name }}" maxlength="25"></label>
+    <label>Cidade do recebedor
+      <input name="pix_city" value="{{ settings.pix_city }}" maxlength="15" placeholder="Natal"></label>
+    <label>Domínio do site (sem https://)
+      <input name="domain" value="{{ settings.domain }}" placeholder="painel.SEU-DOMINIO.com.br"></label>
+    <label>Nova senha do anfitrião (deixe vazio para manter)
+      <input type="password" name="new_password" autocomplete="new-password"></label>
+    <button class="btn primary" type="submit">Salvar</button>
+  </form>
+</section>
+{% if automations %}
+<section class="card">
+  <h2>Automações disponíveis no HA</h2>
+  <p><small>Copie os IDs para configurar o card "Automações".</small></p>
+  <ul class="invoice-list">
+    {% for entity_id, friendly_name in automations %}
+    <li><span>{{ friendly_name }}<br><small><code>{{ entity_id }}</code></small></span></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

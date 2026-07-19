@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Anfitrião — Reserva{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<section class="card">
+  <h2>{{ 'Editar reserva' if reservation else 'Nova reserva' }}</h2>
+  <form method="post" action="/admin/reservas/salvar" class="form-grid">
+    <input type="hidden" name="rid" value="{{ reservation.id if reservation else 0 }}">
+    <label>Nome do hóspede
+      <input name="guest_name" value="{{ reservation.guest_name if reservation else '' }}" required></label>
+    <label>CPF <input name="cpf" value="{{ reservation.cpf if reservation else '' }}"></label>
+    <label>Celular (com DDD)
+      <input name="phone" value="{{ reservation.phone if reservation else '' }}" required></label>
+    <label>Check-in
+      <input type="date" name="checkin" value="{{ reservation.checkin if reservation else '' }}" required></label>
+    <label>Check-out previsto
+      <input type="date" name="checkout" value="{{ reservation.checkout if reservation else '' }}" required></label>
+    <label>Observações
+      <textarea name="notes" rows="2">{{ reservation.notes if reservation else '' }}</textarea></label>
+    <button class="btn primary" type="submit">Salvar</button>
+  </form>
+</section>
+
+{% if reservation %}
+<section class="card">
+  <h2>Link mágico do hóspede</h2>
+  <p>Envie este link (o hóspede confirma com os 4 últimos dígitos do celular
+     — <strong>{{ reservation.phone_last4 }}</strong>):</p>
+  <textarea class="pix-copy" id="magic-link" readonly rows="2">https://{{ domain or 'painel.SEU-DOMINIO.com.br' }}/r/{{ reservation.token }}</textarea>
+  <button class="btn" type="button"
+    onclick="copyText('magic-link', this, 'Copiado ✓')">Copiar link</button>
+</section>
+
+<section class="card">
+  <div class="row-between">
+    <h2>Faturas</h2>
+    <form method="post" action="/admin/reservas/{{ reservation.id }}/gerar-faturas">
+      <button class="btn small" type="submit">Gerar faturas pendentes</button>
+    </form>
+  </div>
+  {% if not invoices %}<p><small>Nenhuma fatura gerada (o ciclo fecha no 30º dia).</small></p>{% endif %}
+  <ul class="invoice-list">
+  {% for invoice in invoices %}
+    <li>
+      <span>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr }} ·
+        {{ '%.1f'|format(invoice.kwh) }} kWh · <strong>{{ invoice.amount|brl }}</strong></span>
+      <form method="post" action="/admin/faturas/{{ invoice.id }}/status">
+        <select name="status" onchange="this.form.submit()">
+          {% for status_option in ['aberta','paga','cancelada'] %}
+          <option value="{{ status_option }}" {{ 'selected' if invoice.status==status_option }}>{{ status_option }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </li>
+  {% endfor %}
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Liberação extraordinária</h2>
+  <p><small>Por padrão o acesso é bloqueado 1 dia após o check-out. Defina uma data
+     para estender o acesso (deixe vazio para remover).</small></p>
+  <form method="post" action="/admin/reservas/{{ reservation.id }}/liberar" class="row-form">
+    <input type="date" name="extended_until" value="{{ reservation.extended_until or '' }}">
+    <button class="btn" type="submit">Aplicar</button>
+  </form>
+</section>
+
+<section class="card">
+  <form method="post" action="/admin/reservas/{{ reservation.id }}/excluir"
+        onsubmit="return confirm('Excluir esta reserva e suas faturas?')">
+    <button class="btn danger" type="submit">Excluir reserva</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Anfitrião — Reservas{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<section class="card">
+  <div class="row-between">
+    <h2>Reservas</h2>
+    <a class="btn primary" href="/admin/reservas/nova">+ Nova reserva</a>
+  </div>
+  {% if not reservations %}<p><small>Nenhuma reserva ainda.</small></p>{% endif %}
+  <ul class="invoice-list">
+  {% for reservation in reservations %}
+    <li>
+      <span><strong>{{ reservation.guest_name }}</strong><br>
+        <small>{{ reservation.checkin|dbr }} → {{ reservation.checkout|dbr }}
+        {% if reservation.extended_until %} · liberado até {{ reservation.extended_until|dbr }}{% endif %}</small></span>
+      <span class="tag {{ 'paga' if reservation.active else 'cancelada' }}">
+        {{ 'ativa' if reservation.active else 'inativa' }}</span>
+      <a class="btn small" href="/admin/reservas/{{ reservation.id }}">Abrir</a>
+    </li>
+  {% endfor %}
+  </ul>
+</section>
+{% endblock %}

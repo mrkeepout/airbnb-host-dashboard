@@ -1,0 +1,65 @@
+{% set data = card_view.data %}
+{% if data.error %}
+  <p class="alert">{{ t.energy_error }}: {{ data.error }}</p>
+{% endif %}
+
+{% if data.kwh is not none %}
+<div class="gauge-wrap">
+  {% set progress = (data.day_number / data.total_days) if data.total_days else 0 %}
+  {% set circumference = 565.49 %}
+  <div class="gauge">
+    <svg width="210" height="210" viewBox="0 0 210 210">
+      <circle class="track" cx="105" cy="105" r="90" fill="none" stroke-width="14"/>
+      <circle class="bar" cx="105" cy="105" r="90" fill="none" stroke-width="14"
+        stroke-dasharray="{{ circumference }}"
+        stroke-dashoffset="{{ '%.1f'|format(circumference * (1 - progress)) }}"/>
+    </svg>
+    <div class="center">
+      <div class="kwh">{{ '%.1f'|format(data.kwh) }}</div>
+      <div class="unit">{{ t.kwh_cycle }}</div>
+      <div class="pill">{{ data.estimated_value|brl }}</div>
+    </div>
+  </div>
+  <div class="gauge-meta">
+    <div class="item"><small>{{ t.since }}</small>
+      <span class="v">{{ data.cycle[1].isoformat()|dbr if data.cycle else data.checkin|dbr }}</span></div>
+    <div class="item"><small>{{ t.cycle_day }}</small>
+      <span class="v">{{ data.day_number }}/{{ data.total_days }}</span></div>
+    <div class="item"><small>{{ t.tariff }}</small>
+      <span class="v">{{ data.tariff|brl }}</span></div>
+  </div>
+</div>
+{% endif %}
+
+{% set open_invoice = data.invoices | selectattr('status','equalto','aberta') | list | first %}
+{% if open_invoice %}
+<div class="banner">
+  <small>{{ t.energy_invoice }} · {{ open_invoice.period_start|dbr }} – {{ open_invoice.period_end|dbr }}</small>
+  <div class="amount">{{ open_invoice.amount|brl }}</div>
+  <a class="btn" href="/fatura/{{ open_invoice.id }}">{{ t.pay_pix }}</a>
+</div>
+{% endif %}
+
+<details class="range">
+  <summary>{{ t.other_period }}</summary>
+  <div class="range-form">
+    <label>{{ t.from }} <input type="date" id="en-start" value="{{ data.checkin }}"></label>
+    <label>{{ t.to }} <input type="date" id="en-end"></label>
+    <button class="btn small primary" id="en-go" type="button">{{ t.consult }}</button>
+  </div>
+  <p id="en-result"></p>
+</details>
+
+{% if data.invoices %}
+  <h3>{{ t.invoice_history }}</h3>
+  <ul class="invoice-list">
+  {% for invoice in data.invoices %}
+    <li>
+      <span>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr }}<br>
+        <small>{{ '%.1f'|format(invoice.kwh) }} kWh</small></span>
+      <span class="tag {{ invoice.status }}">{{ t['st_' ~ invoice.status] }}</span>
+      <a class="btn small" href="/fatura/{{ invoice.id }}">{{ invoice.amount|brl }}</a>
+    </li>
+  {% endfor %}
+  </ul>
+{% endif %}

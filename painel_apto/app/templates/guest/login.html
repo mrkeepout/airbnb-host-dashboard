@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ t.apartment }}{% endblock %}
+{% block content %}
+<div class="center-card">
+  <div class="logo">⌂</div>
+  <h1>{{ t.hello }}, {{ reservation.guest_name.split(' ')[0] }}!</h1>
+  {% if expired %}
+    <p class="alert">{{ t.expired_res }}</p>
+  {% else %}
+    <p class="muted">{{ t.confirm_msg|safe }}</p>
+    {% if error %}<p class="alert">{{ error }}</p>{% endif %}
+    <form method="post" action="/r/{{ token }}">
+      <input class="code-input" type="tel" name="last4" inputmode="numeric"
+             pattern="[0-9]{4}" maxlength="4" placeholder="••••" required autofocus>
+      <button class="btn primary" style="width:100%" type="submit">{{ t.enter }}</button>
+    </form>
+  {% endif %}
+  <p class="langswitch">
+    <a href="/r/{{ token }}?lang=pt" class="{{ 'on' if lang=='pt' }}">PT</a> ·
+    <a href="/r/{{ token }}?lang=en" class="{{ 'on' if lang=='en' }}">EN</a> ·
+    <a href="/r/{{ token }}?lang=es" class="{{ 'on' if lang=='es' }}">ES</a>
+  </p>
+</div>
+{% endblock %}
