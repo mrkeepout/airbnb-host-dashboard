@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4
+
+- Correção da barra de navegação.
+
 ## 1.0.3
 
 - Correção da senha inicial. 
