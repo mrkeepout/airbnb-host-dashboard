@@ -62,7 +62,8 @@ def login(request: Request, password: str = Form(...),
         response.set_cookie(
             "host_session", session_cookie, httponly=True,
             samesite="strict", max_age=HOST_SESSION_MAX_AGE,
-            secure=request.headers.get("x-forwarded-proto") == "https")
+            secure=request.headers.get("x-forwarded-proto") == "https",
+            path="/admin")
         return response
 
     security.register_failed_admin_login(ip)
