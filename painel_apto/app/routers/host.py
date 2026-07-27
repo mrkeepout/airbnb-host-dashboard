@@ -75,7 +75,7 @@ def login(request: Request, password: str = Form(...),
 @router.get("/sair")
 def logout():
     response = RedirectResponse("/admin/login", status_code=303)
-    response.delete_cookie("host_session")
+    response.delete_cookie("host_session", path="/admin")
     return response
 
 
