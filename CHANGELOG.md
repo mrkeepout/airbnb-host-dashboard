@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+- Segurança: 2FA opcional no login do anfitrião (TOTP — Google Authenticator).
+- Segurança: bloqueio por IP após 5 tentativas de senha erradas (15 min).
+- Segurança: cabeçalhos HTTP de proteção (CSP, HSTS, X-Frame-Options etc.),
+  cookie do admin em modo strict/secure e robots.txt bloqueando indexação.
+- Novo guia SEGURANCA.md com as proteções recomendadas na Cloudflare.
+
 ## 1.0.4
 
 - Correção da barra de navegação.

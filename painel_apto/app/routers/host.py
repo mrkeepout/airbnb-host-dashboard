@@ -7,7 +7,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from .. import auth, billing, db, deps
+from .. import auth, billing, db, deps, security
 from .. import ha as home_assistant
 from ..modules import REGISTRY as MODULE_REGISTRY
 
@@ -26,24 +26,49 @@ def get_templates(request: Request):
 
 # ---------------- login ----------------
 
+def _totp_enabled() -> bool:
+    return bool(db.get_setting("totp_secret"))
+
+
+def _render_login(request: Request, error: str | None):
+    return get_templates(request).TemplateResponse(
+        request, "admin/login.html",
+        {"error": error, "totp_enabled": _totp_enabled()})
+
+
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
-    return get_templates(request).TemplateResponse(
-        request, "admin/login.html", {"error": None})
+    return _render_login(request, None)
 
 
 @router.post("/login", response_class=HTMLResponse)
-def login(request: Request, password: str = Form(...)):
+def login(request: Request, password: str = Form(...),
+          totp_code: str = Form("")):
+    ip = security.client_ip(request)
+
+    if security.admin_login_blocked(ip):
+        return _render_login(
+            request, "Muitas tentativas. Aguarde 15 minutos e tente novamente.")
+
     stored_hash = db.get_setting("host_password_hash", "")
-    if auth.check_password(password, stored_hash):
+    password_ok = auth.check_password(password, stored_hash)
+    totp_ok = (not _totp_enabled()
+               or security.verify_totp(db.get_setting("totp_secret"), totp_code))
+
+    if password_ok and totp_ok:
         session_cookie = auth.sign_session({"role": "host"},
                                            db.get_setting("secret"))
         response = RedirectResponse("/admin", status_code=303)
-        response.set_cookie("host_session", session_cookie, httponly=True,
-                            samesite="lax", max_age=HOST_SESSION_MAX_AGE)
+        response.set_cookie(
+            "host_session", session_cookie, httponly=True,
+            samesite="strict", max_age=HOST_SESSION_MAX_AGE,
+            secure=request.headers.get("x-forwarded-proto") == "https")
         return response
-    return get_templates(request).TemplateResponse(
-        request, "admin/login.html", {"error": "Senha incorreta"})
+
+    security.register_failed_admin_login(ip)
+    if password_ok and not totp_ok:
+        return _render_login(request, "Código do autenticador inválido.")
+    return _render_login(request, "Senha incorreta")
 
 
 @router.get("/sair")
@@ -214,10 +239,19 @@ async def settings_page(request: Request, _: bool = Depends(deps.current_host)):
     except Exception as error:
         ha_error = str(error)
 
+    # estado do 2FA: ativo, ou pendente de confirmação (QR na tela)
+    totp_active = bool(db.get_setting("totp_secret"))
+    pending_secret = db.get_setting("totp_pending_secret", "")
+    totp_qr = None
+    if pending_secret and not totp_active:
+        totp_qr = security.totp_qr_data_uri(security.totp_uri(pending_secret))
+
     return get_templates(request).TemplateResponse(
         request, "admin/config.html",
         {"settings": settings, "sensors": energy_sensors,
-         "automations": automations, "ha_error": ha_error},
+         "automations": automations, "ha_error": ha_error,
+         "totp_active": totp_active, "totp_qr": totp_qr,
+         "totp_pending_secret": pending_secret},
     )
 
 
@@ -232,6 +266,44 @@ async def settings_save(request: Request, _: bool = Depends(deps.current_host)):
     if new_password:
         db.set_setting("host_password_hash", auth.hash_password(new_password))
 
+    return RedirectResponse("/admin/config", status_code=303)
+
+
+# ---------------- 2FA (autenticador) ----------------
+
+@router.post("/seguranca/2fa/iniciar")
+def totp_start(_: bool = Depends(deps.current_host)):
+    """Gera o segredo pendente; o QR aparece na tela de Configurações."""
+    if not db.get_setting("totp_secret"):
+        db.set_setting("totp_pending_secret", security.new_totp_secret())
+    return RedirectResponse("/admin/config", status_code=303)
+
+
+@router.post("/seguranca/2fa/confirmar")
+def totp_confirm(code: str = Form(...), _: bool = Depends(deps.current_host)):
+    """Ativa o 2FA somente depois de validar um código do app."""
+    pending_secret = db.get_setting("totp_pending_secret", "")
+    if pending_secret and security.verify_totp(pending_secret, code):
+        db.set_setting("totp_secret", pending_secret)
+        db.set_setting("totp_pending_secret", "")
+    return RedirectResponse("/admin/config", status_code=303)
+
+
+@router.post("/seguranca/2fa/cancelar")
+def totp_cancel(_: bool = Depends(deps.current_host)):
+    db.set_setting("totp_pending_secret", "")
+    return RedirectResponse("/admin/config", status_code=303)
+
+
+@router.post("/seguranca/2fa/desativar")
+def totp_disable(code: str = Form(...), password: str = Form(...),
+                 _: bool = Depends(deps.current_host)):
+    """Desativar exige senha + código atual (evita desativação por sessão roubada)."""
+    password_ok = auth.check_password(
+        password, db.get_setting("host_password_hash", ""))
+    code_ok = security.verify_totp(db.get_setting("totp_secret", ""), code)
+    if password_ok and code_ok:
+        db.set_setting("totp_secret", "")
     return RedirectResponse("/admin/config", status_code=303)
 
 

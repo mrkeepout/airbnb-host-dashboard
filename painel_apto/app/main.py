@@ -3,7 +3,7 @@ import os
 from datetime import date
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from jinja2 import pass_context
@@ -83,6 +83,41 @@ app.include_router(host.router)
 @app.on_event("startup")
 def initialize_database():
     db.init_db()
+
+
+# Cabeçalhos de segurança em todas as respostas.
+CONTENT_SECURITY_POLICY = (
+    "default-src 'self'; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    "font-src https://fonts.gstatic.com; "
+    "script-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; "
+    "connect-src 'self'; "
+    "frame-ancestors 'none'; "
+    "base-uri 'self'; form-action 'self'"
+)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "same-origin"
+    response.headers["Permissions-Policy"] = (
+        "camera=(), microphone=(), geolocation=(), payment=()")
+    response.headers["Content-Security-Policy"] = CONTENT_SECURITY_POLICY
+    # HSTS só faz sentido quando o acesso chega por HTTPS (Cloudflare)
+    if request.headers.get("x-forwarded-proto") == "https":
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains")
+    return response
+
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+def robots_txt():
+    """Pede aos buscadores/crawlers para não indexar nada."""
+    return "User-agent: *\nDisallow: /\n"
 
 
 @app.get("/", response_class=HTMLResponse)

@@ -55,6 +55,11 @@ CREATE TABLE IF NOT EXISTS login_attempts(
   token TEXT NOT NULL,
   ts TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS admin_login_attempts(
+  ip TEXT NOT NULL,                      -- IP real (CF-Connecting-IP)
+  ts TEXT DEFAULT (datetime('now'))
+);
 """
 
 
