@@ -1,7 +1,8 @@
 """Segurança: IP real atrás da Cloudflare, rate-limit e 2FA (TOTP).
 
-O TOTP é o mesmo padrão do Google Authenticator / Authy (RFC 6238),
-implementado só com a biblioteca padrão do Python.
+O TOTP segue o padrão do Google Authenticator / Authy (RFC 6238). O algoritmo
+TOTP em si é implementado com a biblioteca padrão do Python; o QR Code é gerado
+com `segno`.
 """
 import base64
 import hashlib
