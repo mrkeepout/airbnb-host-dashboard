@@ -49,6 +49,11 @@ def register_failed_admin_login(ip: str):
 def admin_login_blocked(ip: str) -> bool:
     window = f"-{ADMIN_ATTEMPT_WINDOW_MINUTES} minutes"
     with db.get_connection() as connection:
+        # mantém apenas a janela relevante para evitar crescimento ilimitado
+        connection.execute(
+            "DELETE FROM admin_login_attempts WHERE ts <= datetime('now', ?)",
+            (window,),
+        )
         by_ip = connection.execute(
             "SELECT COUNT(*) AS total FROM admin_login_attempts "
             "WHERE ip=? AND ts > datetime('now', ?)", (ip, window),
