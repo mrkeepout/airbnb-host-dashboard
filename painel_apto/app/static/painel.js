@@ -1,5 +1,13 @@
 // Interações do painel do hóspede
-const T = window.I18N || {};
+// Textos traduzidos vêm dos atributos data-* do elemento #i18n (CSP estrita,
+// sem script inline).
+const i18nElement = document.getElementById('i18n');
+const T = i18nElement ? {
+  choose: i18nElement.dataset.choose,
+  query: i18nElement.dataset.query,
+  error: i18nElement.dataset.error,
+  toggle_error: i18nElement.dataset.toggleError,
+} : {};
 document.addEventListener('click', async (ev) => {
   const sw = ev.target.closest('.switch[data-entity]');
   if (sw && !sw.disabled) {

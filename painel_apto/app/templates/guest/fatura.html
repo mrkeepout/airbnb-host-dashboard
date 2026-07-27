@@ -18,7 +18,7 @@
     <p class="muted"><small>{{ t.scan_qr }}</small></p>
     <textarea class="pix-copy" id="pix-payload" readonly rows="4">{{ payload }}</textarea>
     <button class="btn primary" style="width:100%" type="button"
-      onclick="copyText('pix-payload', this, {{ t.copied|tojson }})">
+      data-copy-target="pix-payload" data-copied-label="{{ t.copied }}">
       {{ t.copy_pix }}</button>
     <p class="muted"><small>{{ t.after_payment }}</small></p>
   {% else %}

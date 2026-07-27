@@ -90,7 +90,7 @@ CONTENT_SECURITY_POLICY = (
     "default-src 'self'; "
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
     "font-src https://fonts.gstatic.com; "
-    "script-src 'self' 'unsafe-inline'; "
+    "script-src 'self'; "
     "img-src 'self' data:; "
     "connect-src 'self'; "
     "frame-ancestors 'none'; "

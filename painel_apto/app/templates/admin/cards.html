@@ -15,7 +15,7 @@
         <form class="inline" method="post" action="/admin/cards/{{ card.id }}/mover">
           <input type="hidden" name="direction" value="down"><button class="btn small">↓</button></form>
         <form class="inline" method="post" action="/admin/cards/{{ card.id }}/excluir"
-              onsubmit="return confirm('Excluir este card?')">
+              data-confirm="Excluir este card?">
           <button class="btn small danger">✕</button></form>
       </span>
     </div>
