@@ -22,10 +22,15 @@ def client_ip(request: Request) -> str:
     Atrás do Cloudflare Tunnel, o IP de conexão é sempre o do túnel;
     o IP verdadeiro vem no header CF-Connecting-IP.
     """
-    return (
-        request.headers.get("cf-connecting-ip")
-        or (request.client.host if request.client else "?")
-    )
+    from ipaddress import ip_address
+
+    header = request.headers.get("cf-connecting-ip")
+    if header:
+        try:
+            return str(ip_address(header.strip()))
+        except ValueError:
+            pass
+    return request.client.host if request.client else "?"
 
 
 # ---------------- rate-limit do login do anfitrião ----------------
