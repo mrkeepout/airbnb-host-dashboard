@@ -28,7 +28,7 @@
      — <strong>{{ reservation.phone_last4 }}</strong>):</p>
   <textarea class="pix-copy" id="magic-link" readonly rows="2">https://{{ domain or 'painel.SEU-DOMINIO.com.br' }}/r/{{ reservation.token }}</textarea>
   <button class="btn" type="button"
-    onclick="copyText('magic-link', this, 'Copiado ✓')">Copiar link</button>
+    data-copy-target="magic-link" data-copied-label="Copiado ✓">Copiar link</button>
 </section>
 
 <section class="card">
@@ -45,7 +45,7 @@
       <span>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr }} ·
         {{ '%.1f'|format(invoice.kwh) }} kWh · <strong>{{ invoice.amount|brl }}</strong></span>
       <form method="post" action="/admin/faturas/{{ invoice.id }}/status">
-        <select name="status" onchange="this.form.submit()">
+        <select name="status" data-autosubmit>
           {% for status_option in ['aberta','paga','cancelada'] %}
           <option value="{{ status_option }}" {{ 'selected' if invoice.status==status_option }}>{{ status_option }}</option>
           {% endfor %}
@@ -68,7 +68,7 @@
 
 <section class="card">
   <form method="post" action="/admin/reservas/{{ reservation.id }}/excluir"
-        onsubmit="return confirm('Excluir esta reserva e suas faturas?')">
+        data-confirm="Excluir esta reserva e suas faturas?">
     <button class="btn danger" type="submit">Excluir reserva</button>
   </form>
 </section>

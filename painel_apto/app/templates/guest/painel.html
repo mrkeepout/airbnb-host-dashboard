@@ -24,9 +24,10 @@
 {% endfor %}
 
 <footer class="foot">{{ t.access_until }} {{ limit|dbr }}.</footer>
-<script>window.I18N = {choose: {{ t.js_choose|tojson }}, query: {{ t.js_query|tojson }},
-  error: {{ t.js_error|tojson }}, toggle_error: {{ t.js_toggle_error|tojson }}};</script>
-<script src="/static/painel.js"></script>
+<div id="i18n" hidden
+     data-choose="{{ t.js_choose }}" data-query="{{ t.js_query }}"
+     data-error="{{ t.js_error }}" data-toggle-error="{{ t.js_toggle_error }}"></div>
+<script src="/static/painel.js" defer></script>
 {% endblock %}
 
 {% block nav %}

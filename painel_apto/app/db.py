@@ -55,6 +55,13 @@ CREATE TABLE IF NOT EXISTS login_attempts(
   token TEXT NOT NULL,
   ts TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS admin_login_attempts(
+  ip TEXT NOT NULL,                      -- IP real (CF-Connecting-IP)
+  ts TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_admin_login_attempts_ip_ts ON admin_login_attempts(ip, ts);
+CREATE INDEX IF NOT EXISTS idx_admin_login_attempts_ts ON admin_login_attempts(ts);
 """
 
 
