@@ -152,7 +152,7 @@ async def energy_by_period(start: str, end: str,
     try:
         consumed_kwh = await billing.measure_kwh(start_date, end_exclusive)
     except Exception as error:
-        raise HTTPException(502, f"Erro ao consultar o sistema: {error}")
+        raise HTTPException(502, "Erro ao consultar o sistema") from error
     if consumed_kwh is None:
         raise HTTPException(502, "Sem leitura do sensor no período")
 
