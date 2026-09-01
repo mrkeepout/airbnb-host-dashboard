@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.1
+
+- Correção do consumo de energia: o reset do contador do medidor (comum em
+  medidores Tuya ao reiniciar) deixava a leitura negativa. Agora só as
+  variações positivas são somadas, e a medição passou a ser por hora.
+- Faturas com leitura ruim deixaram de ficar congeladas: enquanto estiverem
+  abertas, são recalculadas sozinhas. Faturas pagas ou canceladas não mudam.
+- Sensor sem leitura no período não gera mais fatura de 0,00 kWh.
+- "Consultar outro período": a data "Até" agora inclui o dia informado, a
+  faixa é limitada ao check-out e o período medido é exibido no resultado.
+- Datas das faturas passam a mostrar o último dia realmente incluído, então
+  faturas seguidas não aparecem mais compartilhando a mesma data.
+- Novo diagnóstico do anfitrião em `/admin/energia/diagnostico` com as
+  leituras brutas do sensor e as horas descartadas por reset.
+
 ## 1.1.0
 
 - Segurança: 2FA opcional no login do anfitrião (TOTP — Google Authenticator).
