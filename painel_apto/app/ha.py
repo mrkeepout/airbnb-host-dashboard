@@ -47,11 +47,14 @@ async def call_service(domain: str, service: str, entity_id: str):
             return await response.json()
 
 
-async def energy_between(entity_id: str, start: datetime, end: datetime) -> float:
-    """Consumo (kWh) entre duas datas, via estatísticas de longo prazo.
+async def statistics_during_period(entity_id: str, start: datetime,
+                                   end: datetime,
+                                   period: str = "hour") -> list[dict]:
+    """Buckets brutos de `recorder/statistics_during_period` em [start, end).
 
-    Usa o comando WebSocket `recorder/statistics_during_period` com o tipo
-    "change" (variação por dia) e soma os valores do período.
+    Devolve a lista como o HA entrega (cada item traz "start", "end" e
+    "change"), sem nenhum tratamento — quem chama decide o que fazer com
+    valores negativos (reset do contador do medidor).
     """
     request_message = {
         "id": 1,
@@ -59,7 +62,7 @@ async def energy_between(entity_id: str, start: datetime, end: datetime) -> floa
         "start_time": start.isoformat(),
         "end_time": end.isoformat(),
         "statistic_ids": [entity_id],
-        "period": "day",
+        "period": period,
         "types": ["change"],
     }
     async with aiohttp.ClientSession() as http:
@@ -78,6 +81,28 @@ async def energy_between(entity_id: str, start: datetime, end: datetime) -> floa
                 if reply.get("id") == 1 and reply.get("type") == "result":
                     if not reply.get("success"):
                         raise RuntimeError(f"Erro do HA: {reply.get('error')}")
-                    daily_changes = reply["result"].get(entity_id, [])
-                    total_kwh = sum(day.get("change") or 0 for day in daily_changes)
-                    return round(total_kwh, 3)
+                    return reply["result"].get(entity_id, [])
+
+
+async def energy_between(entity_id: str, start: datetime,
+                         end: datetime) -> float | None:
+    """Consumo (kWh) entre duas datas, via estatísticas de longo prazo.
+
+    Soma apenas as variações positivas por hora. O medidor de garra Tuya zera
+    o contador acumulado quando o dispositivo reinicia, e o HA registra essa
+    queda como um `change` negativo — somá-lo levaria o total do período para
+    baixo (podendo ficar negativo). Descartar o bucket perde, no máximo, o
+    consumo de uma hora.
+
+    Retorna None quando o HA não tem nenhuma estatística no período (sensor
+    fora do ar), o que é diferente de consumo zero — nesse caso o HA devolve
+    buckets com change 0.
+    """
+    buckets = await statistics_during_period(entity_id, start, end)
+    if not buckets:
+        return None
+    total_kwh = sum(
+        change for bucket in buckets
+        if (change := bucket.get("change") or 0) > 0
+    )
+    return round(max(total_kwh, 0.0), 3)

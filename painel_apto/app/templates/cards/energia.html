@@ -34,7 +34,7 @@
 {% set open_invoice = data.invoices | selectattr('status','equalto','aberta') | list | first %}
 {% if open_invoice %}
 <div class="banner">
-  <small>{{ t.energy_invoice }} · {{ open_invoice.period_start|dbr }} – {{ open_invoice.period_end|dbr }}</small>
+  <small>{{ t.energy_invoice }} · {{ open_invoice.period_start|dbr }} – {{ open_invoice.period_end|dbr_end }}</small>
   <div class="amount">{{ open_invoice.amount|brl }}</div>
   <a class="btn" href="/fatura/{{ open_invoice.id }}">{{ t.pay_pix }}</a>
 </div>
@@ -43,8 +43,10 @@
 <details class="range">
   <summary>{{ t.other_period }}</summary>
   <div class="range-form">
-    <label>{{ t.from }} <input type="date" id="en-start" value="{{ data.checkin }}"></label>
-    <label>{{ t.to }} <input type="date" id="en-end"></label>
+    <label>{{ t.from }} <input type="date" id="en-start" value="{{ data.checkin }}"
+      min="{{ data.checkin }}" max="{{ data.max_query_day }}"></label>
+    <label>{{ t.to }} <input type="date" id="en-end"
+      min="{{ data.checkin }}" max="{{ data.max_query_day }}"></label>
     <button class="btn small primary" id="en-go" type="button">{{ t.consult }}</button>
   </div>
   <p id="en-result"></p>
@@ -55,7 +57,7 @@
   <ul class="invoice-list">
   {% for invoice in data.invoices %}
     <li>
-      <span>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr }}<br>
+      <span>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr_end }}<br>
         <small>{{ '%.2f'|format(invoice.kwh) }} kWh</small></span>
       <span class="tag {{ invoice.status }}">{{ t['st_' ~ invoice.status] }}</span>
       <a class="btn small" href="/fatura/{{ invoice.id }}">{{ invoice.amount|brl }}</a>
