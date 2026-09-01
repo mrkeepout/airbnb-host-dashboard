@@ -36,7 +36,11 @@ document.addEventListener('click', async (ev) => {
       if (typeof d.kwh !== 'number') { out.textContent = T.error || 'Erro'; return; }
       // o servidor pode ter encurtado a faixa (limite da estadia / hoje)
       const range = `${brDate(d.start)} – ${brDate(d.end)}`;
-      out.innerHTML = `<strong>${d.kwh.toFixed(1)} kWh</strong> — R$ ${d.value.toFixed(2).replace('.', ',')}<br><small>${range}</small>`;
+      const strong = document.createElement('strong');
+      strong.textContent = `${d.kwh.toFixed(1)} kWh`;
+      const small = document.createElement('small');
+      small.textContent = range;
+      out.replaceChildren(strong, ` — R$ ${d.value.toFixed(2).replace('.', ',')}`, document.createElement('br'), small);
     } else {
       const e = await r.json().catch(() => ({}));
       out.textContent = e.detail || T.error || 'Erro';
