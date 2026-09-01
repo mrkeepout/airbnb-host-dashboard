@@ -42,7 +42,7 @@
   <ul class="invoice-list">
   {% for invoice in invoices %}
     <li>
-      <span>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr }} ·
+      <span>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr_end }} ·
         {{ '%.1f'|format(invoice.kwh) }} kWh · <strong>{{ invoice.amount|brl }}</strong></span>
       <form method="post" action="/admin/faturas/{{ invoice.id }}/status">
         <select name="status" data-autosubmit>

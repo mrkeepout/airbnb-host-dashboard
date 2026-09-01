@@ -53,8 +53,12 @@ def finished_cycles(checkin: date, checkout: date, reference_date: date):
     ]
 
 
-async def measure_kwh(start: date, end: date) -> float:
-    """Consumo em kWh no período, lido do sensor configurado."""
+async def measure_kwh(start: date, end: date) -> float | None:
+    """Consumo em kWh no período, lido do sensor configurado.
+
+    Devolve None quando o sensor não tem leitura nenhuma no período — não
+    confundir com consumo zero.
+    """
     sensor_entity_id = db.get_setting("energy_sensor")
     if not sensor_entity_id:
         raise RuntimeError("Sensor de energia não configurado")
@@ -64,32 +68,59 @@ async def measure_kwh(start: date, end: date) -> float:
 
 
 async def ensure_invoices(reservation: dict) -> None:
-    """Gera as faturas de ciclos encerrados que ainda não existem no banco."""
+    """Gera as faturas de ciclos encerrados e reavalia as que estão abertas.
+
+    Uma leitura vazia (sensor fora do ar) não vira fatura: o ciclo fica para a
+    próxima tentativa, em vez de gravar 0,00 kWh para sempre. Faturas ainda
+    abertas são remedidas a cada passagem, para que uma leitura ruim se
+    corrija sozinha; faturas pagas ou canceladas nunca são alteradas.
+    """
     checkin = date.fromisoformat(reservation["checkin"])
     checkout = date.fromisoformat(reservation["checkout"])
-    tariff = float(db.get_setting("tariff", "0") or 0)
+    current_tariff = float(db.get_setting("tariff", "0") or 0)
 
     with db.get_connection() as connection:
-        existing_cycles = {
-            row["cycle"]
+        existing_invoices = {
+            row["cycle"]: dict(row)
             for row in connection.execute(
-                "SELECT cycle FROM invoices WHERE reservation_id=?",
+                "SELECT id,cycle,kwh,tariff,status FROM invoices"
+                " WHERE reservation_id=?",
                 (reservation["id"],),
             )
         }
 
     for cycle_number, start, end in finished_cycles(checkin, checkout, today()):
-        if cycle_number in existing_cycles:
+        invoice = existing_invoices.get(cycle_number)
+        if invoice and invoice["status"] != "aberta":
             continue
+
         consumed_kwh = await measure_kwh(start, end)
+        if consumed_kwh is None:
+            # sem leitura no período: não grava nem sobrescreve o que já existe
+            continue
+
+        if invoice is None:
+            with db.get_connection() as connection:
+                connection.execute(
+                    "INSERT OR IGNORE INTO invoices"
+                    "(reservation_id,cycle,period_start,period_end,kwh,tariff,amount)"
+                    " VALUES(?,?,?,?,?,?,?)",
+                    (reservation["id"], cycle_number, start.isoformat(),
+                     end.isoformat(), consumed_kwh, current_tariff,
+                     round(consumed_kwh * current_tariff, 2)),
+                )
+            continue
+
+        # fatura aberta: mantém a tarifa registrada no fechamento do ciclo,
+        # só adota a atual se a gravada estiver zerada (config incompleta)
+        tariff = float(invoice["tariff"] or 0) or current_tariff
+        if consumed_kwh == invoice["kwh"] and tariff == invoice["tariff"]:
+            continue
         with db.get_connection() as connection:
             connection.execute(
-                "INSERT OR IGNORE INTO invoices"
-                "(reservation_id,cycle,period_start,period_end,kwh,tariff,amount)"
-                " VALUES(?,?,?,?,?,?,?)",
-                (reservation["id"], cycle_number, start.isoformat(),
-                 end.isoformat(), consumed_kwh, tariff,
-                 round(consumed_kwh * tariff, 2)),
+                "UPDATE invoices SET kwh=?,tariff=?,amount=? WHERE id=?",
+                (consumed_kwh, tariff, round(consumed_kwh * tariff, 2),
+                 invoice["id"]),
             )
 
 

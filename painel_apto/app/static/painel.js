@@ -33,7 +33,10 @@ document.addEventListener('click', async (ev) => {
     const r = await fetch(`/api/energia?start=${start}&end=${end}`);
     if (r.ok) {
       const d = await r.json();
-      out.innerHTML = `<strong>${d.kwh.toFixed(1)} kWh</strong> — R$ ${d.value.toFixed(2).replace('.', ',')}`;
+      if (typeof d.kwh !== 'number') { out.textContent = T.error || 'Erro'; return; }
+      // o servidor pode ter encurtado a faixa (limite da estadia / hoje)
+      const range = `${brDate(d.start)} – ${brDate(d.end)}`;
+      out.innerHTML = `<strong>${d.kwh.toFixed(1)} kWh</strong> — R$ ${d.value.toFixed(2).replace('.', ',')}<br><small>${range}</small>`;
     } else {
       const e = await r.json().catch(() => ({}));
       out.textContent = e.detail || T.error || 'Erro';
@@ -41,7 +44,15 @@ document.addEventListener('click', async (ev) => {
   }
 });
 
+// '2026-08-30' -> '30/08/2026'
+function brDate(iso) {
+  const p = String(iso || '').split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : iso;
+}
+
+// o último dia consultável vem do template (fim da estadia ou hoje, o que
+// vier primeiro), então não usamos a data do dispositivo
 const endInput = document.getElementById('en-end');
 if (endInput && !endInput.value) {
-  endInput.value = new Date().toISOString().slice(0, 10);
+  endInput.value = endInput.max || new Date().toISOString().slice(0, 10);
 }

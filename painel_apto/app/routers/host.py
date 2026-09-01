@@ -205,6 +205,49 @@ async def generate_pending_invoices(reservation_id: int,
     return RedirectResponse(f"/admin/reservas/{reservation_id}", status_code=303)
 
 
+@router.get("/energia/diagnostico")
+async def energy_diagnostics(start: str, end: str,
+                             _: bool = Depends(deps.current_host)):
+    """Leituras brutas do sensor por hora, para conferir números estranhos.
+
+    O medidor de garra Tuya zera o contador quando reinicia; aqui dá para ver
+    quais horas foram descartadas por virem com variação negativa.
+    """
+    try:
+        start_date = date.fromisoformat(start)
+        end_date = date.fromisoformat(end)
+    except ValueError:
+        raise HTTPException(400, "Datas inválidas")
+    if start_date >= end_date:
+        raise HTTPException(400, "Período inválido")
+
+    sensor_entity_id = db.get_setting("energy_sensor")
+    if not sensor_entity_id:
+        raise HTTPException(400, "Sensor de energia não configurado")
+
+    try:
+        buckets = await home_assistant.statistics_during_period(
+            sensor_entity_id,
+            billing.local_midnight(start_date),
+            billing.local_midnight(end_date),
+        )
+    except Exception as error:
+        raise HTTPException(502, f"Erro ao consultar o sistema: {error}")
+
+    resets = [bucket for bucket in buckets if (bucket.get("change") or 0) < 0]
+    return {
+        "sensor": sensor_entity_id,
+        "start": start_date.isoformat(), "end": end_date.isoformat(),
+        "buckets": len(buckets),
+        "kwh": round(sum(change for bucket in buckets
+                         if (change := bucket.get("change") or 0) > 0), 3),
+        "kwh_soma_crua": round(sum(bucket.get("change") or 0
+                                   for bucket in buckets), 3),
+        "resets_descartados": resets,
+        "amostra": buckets[:5],
+    }
+
+
 @router.post("/faturas/{invoice_id}/status")
 def invoice_change_status(invoice_id: int, status: str = Form(...),
                           _: bool = Depends(deps.current_host)):

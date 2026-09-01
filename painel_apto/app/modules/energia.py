@@ -66,6 +66,10 @@ async def build_context(card: dict, reservation: dict) -> dict:
         "invoices": invoices,
         "error": error_message,
         "checkin": reservation["checkin"],
+        "checkout": reservation["checkout"],
+        # último dia consultável: nem depois de hoje, nem depois da estadia
+        "max_query_day": min(
+            reference_date, checkout - timedelta(days=1)).isoformat(),
     }
 
 

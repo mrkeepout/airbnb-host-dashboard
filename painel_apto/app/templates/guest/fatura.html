@@ -6,7 +6,7 @@
   <a class="btn small" href="/painel">{{ t.back }}</a>
 </header>
 <div class="banner">
-  <small>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr }} ·
+  <small>{{ invoice.period_start|dbr }} – {{ invoice.period_end|dbr_end }} ·
     {{ '%.1f'|format(invoice.kwh) }} kWh × {{ invoice.tariff|brl }}/kWh</small>
   <div class="amount">{{ invoice.amount|brl }}</div>
   <small><span class="tag {{ invoice.status }}">{{ t['st_' ~ invoice.status] }}</span></small>

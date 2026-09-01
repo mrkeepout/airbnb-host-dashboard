@@ -139,19 +139,27 @@ async def energy_by_period(start: str, end: str,
     except ValueError:
         raise HTTPException(400, "Datas inválidas")
 
-    # limita ao período da estadia até hoje
+    # limita ao período da estadia até hoje; "Até" é inclusivo, e o check-out
+    # é o mesmo limite exclusivo usado pelos ciclos de faturamento
+    checkout = date.fromisoformat(reservation["checkout"])
     start_date = max(start_date, date.fromisoformat(reservation["checkin"]))
-    end_date = min(end_date, billing.today() + timedelta(days=1))
-    if start_date >= end_date:
+    end_exclusive = min(end_date + timedelta(days=1),
+                        billing.today() + timedelta(days=1),
+                        checkout)
+    if start_date >= end_exclusive:
         raise HTTPException(400, "Período inválido")
 
     try:
-        consumed_kwh = await billing.measure_kwh(start_date, end_date)
+        consumed_kwh = await billing.measure_kwh(start_date, end_exclusive)
     except Exception as error:
         raise HTTPException(502, f"Erro ao consultar o sistema: {error}")
+    if consumed_kwh is None:
+        raise HTTPException(502, "Sem leitura do sensor no período")
 
     tariff = float(db.get_setting("tariff", "0") or 0)
-    return {"start": start_date.isoformat(), "end": end_date.isoformat(),
+    # devolve o intervalo realmente medido, já em forma inclusiva
+    return {"start": start_date.isoformat(),
+            "end": (end_exclusive - timedelta(days=1)).isoformat(),
             "kwh": consumed_kwh, "value": round(consumed_kwh * tariff, 2)}
 
 

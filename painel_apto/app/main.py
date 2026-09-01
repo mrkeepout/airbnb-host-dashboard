@@ -1,6 +1,6 @@
 """Aplicação FastAPI: montagem, filtros de template e página inicial."""
 import os
-from datetime import date
+from datetime import date, timedelta
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse
@@ -66,8 +66,18 @@ def format_date_br(context, iso_date):
     return f"{parsed.day:02d}/{parsed.month:02d}/{parsed.year}"
 
 
+@pass_context
+def format_date_br_end(context, iso_date):
+    """Fim de período exclusivo -> último dia realmente incluído."""
+    parsed = _parse_date(iso_date)
+    if not parsed:
+        return iso_date
+    return format_date_br(context, (parsed - timedelta(days=1)).isoformat())
+
+
 templates.env.filters["brl"] = format_currency_brl
 templates.env.filters["dbr"] = format_date_br
+templates.env.filters["dbr_end"] = format_date_br_end
 
 app = FastAPI(title="Painel do Apartamento", docs_url=None, redoc_url=None)
 app.state.templates = templates
